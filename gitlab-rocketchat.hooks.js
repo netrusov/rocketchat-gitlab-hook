@@ -66,6 +66,7 @@ class Script { // eslint-disable-line
 				case 'Pipeline Event':
 					result = this.pipelineEvent(request.content);
 					break;
+				case 'Job Hook':
 				case 'Build Hook':
 					result = this.buildEvent(request.content);
 					break;
