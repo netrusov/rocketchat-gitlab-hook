@@ -22,7 +22,7 @@ const ACTION_VERBS = {
 };
 const ATTACHMENT_TITLE_SIZE = 10; // Put 0 here to have not title as in previous versions
 const refParser = (ref) => ref.replace(/^refs\/(?:tags|heads)\/(.+)$/, '$1');
-const displayName = (name) => (name && name.toLowerCase().replace(/\s+/g, '.').normalize('NFD').replace(/[\u0300-\u036f]/g, ""));
+const displayName = (name) => (name && name.toLowerCase().replace(/\s+/g, '.').normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
 const atName = (user) => (user && user.name ? '@' + displayName(user.name) : '');
 const makeAttachment = (author, text, color) => {
 	const attachment = {
@@ -38,6 +38,20 @@ const makeAttachment = (author, text, color) => {
 	return attachment;
 };
 const pushUniq = (array, val) => ~array.indexOf(val) || array.push(val); // eslint-disable-line
+const encodeString = (string) => {
+	return string.replace(/./g, (char) => {
+		switch (char) {
+			case '[':
+				return '\uFF3B'; // FULLWIDTH LEFT SQUARE BRACKET
+			case ']':
+				return '\uFF3D'; // FULLWIDTH RIGHT SQUARE BRACKET
+			case '&':
+				return '\uFF06'; // FULLWIDTH AMPERSAND
+			default:
+				return char;
+		}
+	});
+};
 
 class Script { // eslint-disable-line
 	process_incoming_request({ request }) {
@@ -121,6 +135,7 @@ class Script { // eslint-disable-line
 			}
 		};
 	}
+
 	issueEvent(data, event) {
 		if (event === 'Confidential Issue Hook' && IGNORE_CONFIDENTIAL) {
 			return false;
@@ -171,20 +186,20 @@ See: ${data.object_attributes.url}`
 			if (lastCommitAuthor && lastCommitAuthor.name !== user.name) {
 				pushUniq(at, atName(lastCommitAuthor));
 			}
-			text = `commented on MR [#${mr.id} ${mr.title}](${comment.url})`;
+			text = `commented on MR [#${mr.id}: ${encodeString(mr.title)}](${comment.url})`;
 		} else if (data.commit) {
 			const commit = data.commit;
 			const message = commit.message.replace(/\n[^\s\S]+/, '...').replace(/\n$/, '');
 			if (commit.author && commit.author.name !== user.name) {
 				at.push(atName(commit.author));
 			}
-			text = `commented on commit [${commit.id.slice(0, 8)} ${message}](${comment.url})`;
+			text = `commented on commit [${commit.id.slice(0, 8)}: ${message}](${comment.url})`;
 		} else if (data.issue) {
 			const issue = data.issue;
-			text = `commented on issue [#${issue.id} ${issue.title}](${comment.url})`;
+			text = `commented on issue [#${issue.id}: ${encodeString(issue.title)}](${comment.url})`;
 		} else if (data.snippet) {
 			const snippet = data.snippet;
-			text = `commented on code snippet [#${snippet.id} ${snippet.title}](${comment.url})`;
+			text = `commented on code snippet [#${snippet.id}: ${encodeString(snippet.title)}](${comment.url})`;
 		}
 		return {
 			content: {
@@ -221,7 +236,7 @@ See: ${data.object_attributes.url}`
 				icon_url: mr.target.avatar_url || mr.source.avatar_url || user.avatar_url || '',
 				text: at.join(' '),
 				attachments: [
-					makeAttachment(user, `${mr.action} MR [#${mr.iid} ${mr.title}](${mr.url})\n${mr.source_branch} into ${mr.target_branch}`)
+					makeAttachment(user, `${mr.action} MR [#${mr.id}: ${encodeString(mr.title)}](${mr.url})\n${mr.source_branch} into ${mr.target_branch}`)
 				]
 			}
 		};
