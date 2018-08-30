@@ -4,12 +4,13 @@ const MENTION_ALL_ALLOWED = false; // <- check that bot permission allow has men
 const NOTIF_COLOR = '#6498CC';
 const IGNORE_CONFIDENTIAL = true;
 const STATUSES_COLORS = {
-	success: '#2faa60',
-	pending: '#e75e40',
-	failed: '#d22852',
+	success: '#00aa00',
+	pending: '#dc5a3c',
+	failed: '#d20000',
 	canceled: '#5c5c5c',
-	created: '#ffc107',
-	running: '#607d8b',
+	created: '#46aa64',
+	running: '#325a8c',
+	warning: '#ffc107'
 };
 const ACTION_VERBS = {
 	create: 'created',
