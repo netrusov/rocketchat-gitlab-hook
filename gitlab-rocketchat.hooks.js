@@ -187,7 +187,7 @@ See: ${data.object_attributes.url}`
 			if (lastCommitAuthor && lastCommitAuthor.name !== user.name) {
 				pushUniq(at, atName(lastCommitAuthor));
 			}
-			text = `commented on MR [#${mr.id}: ${encodeString(mr.title)}](${comment.url})`;
+			text = `commented on MR [#${mr.iid}: ${encodeString(mr.title)}](${comment.url})`;
 		} else if (data.commit) {
 			const commit = data.commit;
 			const message = commit.message.replace(/\n[^\s\S]+/, '...').replace(/\n$/, '');
@@ -237,7 +237,7 @@ See: ${data.object_attributes.url}`
 				icon_url: mr.target.avatar_url || mr.source.avatar_url || user.avatar_url || '',
 				text: at.join(' '),
 				attachments: [
-					makeAttachment(user, `${mr.action} MR [#${mr.id}: ${encodeString(mr.title)}](${mr.url})\n${mr.source_branch} into ${mr.target_branch}`)
+					makeAttachment(user, `${mr.action} MR [#${mr.iid}: ${encodeString(mr.title)}](${mr.url})\n${mr.source_branch} into ${mr.target_branch}`)
 				]
 			}
 		};
